@@ -45,6 +45,10 @@ ZSH_THEME_GIT_PROMPT_DIRTY=" $yellow_bold✘$default_color"
 ZSH_THEME_GIT_PROMPT_CLEAN=" $green_bold✔$default_color"
 
 clucas_prompt_precmd() {
+    # set to true in order to span the top/first line of prompt with dashes and time.
+    # typically too many characters in the prompt for my taste.
+    local span_top=false
+
     # Regex to remove elements which take no space. Used to calculate the
     # width of the top prompt. Thanks to Bart's and Adam's prompt code in
     # Functions/Prompts/prompt_*_setup.
@@ -52,9 +56,10 @@ clucas_prompt_precmd() {
 
     # Setup. Create variables holding the formatted content.
 
-    # Current directory in yellow, truncated if necessary (WIDTH is replaced
-    # below).
-    local directory="${yellow_bg}${black}%WIDTH<..<%~%<<${default_color}"
+    # Current directory in yellow background, truncated if necessary (WIDTH is replaced below).
+    #local directory="${yellow_bg}${black}%WIDTH<..<%~%<<${default_color}"
+    # Current directory in yellow foreground, truncated if necessary (WIDTH is replaced below).
+    local directory="${yellow}%WIDTH<..<%~%<<${default_color}"
 
     # User name (%n) in bright green.
     local user="${limegreen}%B%n%b${default_color}"
@@ -82,7 +87,10 @@ clucas_prompt_precmd() {
     # git info on top left
     local top_left=" $(git_prompt_info)"
     # time at top right 
-    local top_right=" [%*]"
+    local top_right=""
+    if ( "$span_top" = true ); then
+        top_right=" [%*]"
+    fi
 
     local width_top_prefix=${#${(S%%)top_prefix//$~zero/}}
     local width_top_left=${#${(S%%)top_left//$~zero/}}
@@ -101,15 +109,24 @@ clucas_prompt_precmd() {
     top_left="${directory/WIDTH/${top_left_width_max}}${top_left}"
     width_top_left=${#${(S%%)top_left//$~zero/}}
 
-    # Calculate the width of the top prompt to fill the middle with "-".
-    # wont work withou the extra -1
-    local width=$((
-        COLUMNS - width_top_prefix - width_top_left - width_top_right - 1
-    ))
-    #local top_separator="%B${blue}${(l:${width}::-:)}%b${default_color}"
-    local top_separator="%B${blue}${(l:${width}::—:)}%b${default_color}"
+    local top_separator=""
+    if ( "$span_top" = true ); then
+        # Calculate the width of the top prompt to fill the middle with "-".
+        # wont work without the extra -1
+        local width=$((
+            COLUMNS - width_top_prefix - width_top_left - width_top_right - 1
+        ))
+        # next line uses dash as separator
+        top_separator="%B${blue}${(l:${width}::—:)}%b${default_color}"
+        # next line uses space as (empty) separator
+        #local top_separator="%B${blue}${(l:${width}:: :)}%b${default_color}"
+    fi
 
-    PROMPT="${top_prefix}${top_left}${top_separator}${top_right}
+    # 
+    #PROMPT="${top_prefix}${top_left}${top_separator}${top_right}
+#${bottom_prefix}${user}@${host} %h${background}${exitcode} ${symbol} "
+
+PROMPT="${top_prefix}${top_left}${top_separator}${top_right}
 ${bottom_prefix}${user}@${host} %h${background}${exitcode} ${symbol} "
 
 }
