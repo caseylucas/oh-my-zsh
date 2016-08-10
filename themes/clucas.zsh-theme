@@ -61,6 +61,11 @@ clucas_prompt_precmd() {
     # Current directory in yellow foreground, truncated if necessary (WIDTH is replaced below).
     local directory="${yellow}%WIDTH<..<%~%<<${default_color}"
 
+    local virtenv=""
+    if [[ -n "${VIRTUAL_ENV}" ]]; then
+        virtenv="${blue}$(basename ${VIRTUAL_ENV})${default_color}"
+    fi
+
     # User name (%n) in bright green.
     local user="${limegreen}%B%n%b${default_color}"
     # Host name (%m) in bright green; underlined if running on a remote system
@@ -84,8 +89,8 @@ clucas_prompt_precmd() {
     local bottom_prefix=""
 
     # Combine them to create the prompt.
-    # git info on top left
-    local top_left=" $(git_prompt_info)"
+    # git (and python virtual env) info on top left
+    local top_left=" $(git_prompt_info)${virtenv}"
     # time at top right 
     local top_right=""
     if ( "$span_top" = true ); then
