@@ -63,7 +63,7 @@ clucas_prompt_precmd() {
 
     local virtenv=""
     if [[ -n "${VIRTUAL_ENV}" ]]; then
-        virtenv="${blue}$(basename ${VIRTUAL_ENV})${default_color}"
+        virtenv="${purple}$(basename ${VIRTUAL_ENV})${default_color}"
     fi
 
     # User name (%n) in bright green.
